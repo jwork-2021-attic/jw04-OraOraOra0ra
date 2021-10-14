@@ -1,6 +1,6 @@
 package com.anish.calabashbros;
 
-public class BubbleSorter<T extends Comparable<T>> implements Sorter<T> {
+public class SelectSorter<T extends Comparable<T>> implements Sorter<T> {
 
     private T[][] a;
 
@@ -21,14 +21,15 @@ public class BubbleSorter<T extends Comparable<T>> implements Sorter<T> {
 
     @Override
     public void sort() {
-        boolean sorted = false;
-        while (!sorted) {
-            sorted = true;
-            for (int i = 0; i < a.length * a.length - 1; i++) {
-                if (a[i/16][i%16].compareTo(a[(i+1)/16][(i+1)%16]) > 0) {
-                    swap(i, i + 1);
-                    sorted = false;
+        for(int i = 0; i < a.length * a.length - 1; i++) {
+            int k = i;
+            for(int j = k + 1; j < a.length * a.length; j++){
+                if(a[j/16][j%16].compareTo(a[k/16][k%16]) < 0){
+                    k = j;
                 }
+            }
+            if(i != k){
+                swap(i,k);
             }
         }
     }

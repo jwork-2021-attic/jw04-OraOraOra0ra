@@ -3,7 +3,9 @@ package com.anish.screen;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
+import com.anish.calabashbros.BroFactory;
 import com.anish.calabashbros.BubbleSorter;
+import com.anish.calabashbros.SelectSorter;
 import com.anish.calabashbros.Calabash;
 import com.anish.calabashbros.World;
 
@@ -12,15 +14,17 @@ import asciiPanel.AsciiPanel;
 public class WorldScreen implements Screen {
 
     private World world;
-    private Calabash[] bros;
+    private Calabash[][] bros;
     String[] sortSteps;
 
     public WorldScreen() {
         world = new World();
 
-        bros = new Calabash[7];
+        bros = new Calabash[16][16];
 
-        bros[3] = new Calabash(new Color(204, 0, 0), 1, world);
+        BroFactory broFactory = new BroFactory(bros,16,world);
+
+        /*bros[3] = new Calabash(new Color(204, 0, 0), 1, world);
         bros[5] = new Calabash(new Color(255, 165, 0), 2, world);
         bros[1] = new Calabash(new Color(252, 233, 79), 3, world);
         bros[0] = new Calabash(new Color(78, 154, 6), 4, world);
@@ -34,9 +38,9 @@ public class WorldScreen implements Screen {
         world.put(bros[3], 16, 10);
         world.put(bros[4], 18, 10);
         world.put(bros[5], 20, 10);
-        world.put(bros[6], 22, 10);
+        world.put(bros[6], 22, 10);*/
 
-        BubbleSorter<Calabash> b = new BubbleSorter<>();
+        SelectSorter<Calabash> b = new SelectSorter<>();
         b.load(bros);
         b.sort();
 
@@ -47,15 +51,17 @@ public class WorldScreen implements Screen {
         return plan.split("\n");
     }
 
-    private void execute(Calabash[] bros, String step) {
+    private void execute(Calabash[][] bros, String step) {
         String[] couple = step.split("<->");
         getBroByRank(bros, Integer.parseInt(couple[0])).swap(getBroByRank(bros, Integer.parseInt(couple[1])));
     }
 
-    private Calabash getBroByRank(Calabash[] bros, int rank) {
-        for (Calabash bro : bros) {
-            if (bro.getRank() == rank) {
-                return bro;
+    private Calabash getBroByRank(Calabash[][] bros, int rank) {
+        for (Calabash[] bro : bros) {
+            for (Calabash b : bro) {
+                if (b.getRank() == rank) {
+                    return b;
+                }
             }
         }
         return null;
