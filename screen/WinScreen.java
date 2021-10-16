@@ -24,10 +24,15 @@ import asciiPanel.AsciiPanel;
  * @author Aeranythe Echosong
  */
 public class WinScreen extends RestartScreen {
+    private String name;
+    public WinScreen(String name){
+        this.name = name;
+    }
 
     @Override
     public void displayOutput(AsciiPanel terminal) {
-        terminal.write("You won! Press enter to go again.", 0, 0);
+        terminal.write(name,0,0);
+        terminal.write("Won!", 0, 1);
     }
 
 }

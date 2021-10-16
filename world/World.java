@@ -57,6 +57,8 @@ public class World {
         return tiles[x][y].color();
     }
 
+
+
     public int width() {
         return width;
     }
@@ -67,7 +69,7 @@ public class World {
 
     public void dig(int x, int y) {
         if (tile(x, y).isDiggable()) {
-            tiles[x][y] = Tile.FLOOR;
+            tiles[x][y] = Tile.FLOORB;
         }
     }
 
@@ -80,6 +82,13 @@ public class World {
             y = (int) (Math.random() * this.height);
         } while (!tile(x, y).isGround() || this.creature(x, y) != null);
 
+        creature.setX(x);
+        creature.setY(y);
+
+        this.creatures.add(creature);
+    }
+
+    public void myLocation(Creature creature, int x, int y) {
         creature.setX(x);
         creature.setY(y);
 
@@ -109,5 +118,9 @@ public class World {
         for (Creature creature : toUpdate) {
             creature.update();
         }
+    }
+
+    public void setTile(int x,int y,Tile tile){
+        tiles[x][y] = tile;
     }
 }

@@ -17,6 +17,8 @@
  */
 package world;
 
+import screen.WinScreen;
+
 import java.awt.Color;
 
 /**
@@ -65,7 +67,9 @@ public class Creature {
         this.ai = ai;
     }
 
-    private int maxHP;
+    public int[][] maze = MazeBuilder.mazeArray();
+
+    /*private int maxHP;
 
     public int maxHP() {
         return this.maxHP;
@@ -95,7 +99,7 @@ public class Creature {
 
     public int defenseValue() {
         return this.defenseValue;
-    }
+    }*/
 
     private int visionRadius;
 
@@ -103,9 +107,9 @@ public class Creature {
         return this.visionRadius;
     }
 
-    public boolean canSee(int wx, int wy) {
+    /*public boolean canSee(int wx, int wy) {
         return ai.canSee(wx, wy);
-    }
+    }*/
 
     public Tile tile(int wx, int wy) {
         return world.tile(wx, wy);
@@ -117,22 +121,23 @@ public class Creature {
 
     public void moveBy(int mx, int my) {
         Creature other = world.creature(x + mx, y + my);
+        if ((x+mx) < 0 && mx == -1) //| (x+mx) > world.width() | (y+my) < 0 | (y+mx) > world.height() ) {
+            return;
+        else if ((x+mx) >= world.width() && mx == 1)
+            return;
+        else if ((y+my) < 0 && my == -1)
+            return;
+        else if ((y+my) >= world.height() && my == 1)
+            return;
 
-        if (other == null) {
-            ai.onEnter(x + mx, y + my, world.tile(x + mx, y + my));
-        } else {
-            attack(other);
+        if (maze[x+mx][y+my]==0) {
+            world.setTile(x+mx,y+my,Tile.WALLBB);
+            ai.onEnter(0, 0, world.tile(0, 0));
         }
-    }
-
-    public void attack(Creature other) {
-        int damage = Math.max(0, this.attackValue() - other.defenseValue());
-        damage = (int) (Math.random() * damage) + 1;
-
-        other.modifyHP(-damage);
-
-        this.notify("You attack the '%s' for %d damage.", other.glyph, damage);
-        other.notify("The '%s' attacks you for %d damage.", glyph, damage);
+        else {
+            world.setTile(x+mx,y+my,Tile.FLOORG);
+            ai.onEnter(x + mx, y + my, world.tile(x + mx, y + my));
+        }
     }
 
     public void update() {
@@ -147,14 +152,10 @@ public class Creature {
         ai.onNotify(String.format(message, params));
     }
 
-    public Creature(World world, char glyph, Color color, int maxHP, int attack, int defense, int visionRadius) {
+    public Creature(World world, char glyph, Color color, /*int HP, int attack, int defense,*/ int visionRadius) {
         this.world = world;
         this.glyph = glyph;
         this.color = color;
-        this.maxHP = maxHP;
-        this.hp = maxHP;
-        this.attackValue = attack;
-        this.defenseValue = defense;
         this.visionRadius = visionRadius;
     }
 }

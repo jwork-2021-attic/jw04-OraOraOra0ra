@@ -26,9 +26,13 @@ import java.awt.Color;
  */
 public enum Tile {
 
-    FLOOR((char) 250, AsciiPanel.green),
+    FLOORB((char) 250, AsciiPanel.black),
 
-    WALL((char) 177, AsciiPanel.brightBlack),
+    FLOORG((char) 250, AsciiPanel.green),
+
+    WALLB((char) 177, AsciiPanel.black),
+
+    WALLBB((char) 177, AsciiPanel.brightBlack),
 
     BOUNDS('x', AsciiPanel.magenta);
 
@@ -44,12 +48,19 @@ public enum Tile {
         return color;
     }
 
+    public void drawColor(int i) {
+        if (i == 0)
+            color = AsciiPanel.brightBlack;
+        else if (i == 1)
+            color = AsciiPanel.brightGreen;
+    }
+
     public boolean isDiggable() {
-        return this != Tile.WALL;
+        return this != Tile.WALLBB && this != Tile.WALLB;
     }
 
     public boolean isGround() {
-        return this != Tile.WALL && this != Tile.BOUNDS;
+        return this != Tile.WALLBB && this != Tile.WALLB && this != Tile.BOUNDS;
     }
 
     Tile(char glyph, Color color) {

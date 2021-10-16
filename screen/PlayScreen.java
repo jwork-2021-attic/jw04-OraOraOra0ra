@@ -19,7 +19,7 @@ package screen;
 
 import world.*;
 import asciiPanel.AsciiPanel;
-import java.awt.Color;
+
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,15 +31,18 @@ import java.util.List;
 public class PlayScreen implements Screen {
 
     private World world;
-    private Creature player;
+    private Creature player1;
+    private Creature player2;
+    private Creature Athena;
     private int screenWidth;
     private int screenHeight;
     private List<String> messages;
     private List<String> oldMessages;
+    public int[][] maze = MazeBuilder.mazeArray();
 
     public PlayScreen() {
-        this.screenWidth = 80;
-        this.screenHeight = 24;
+        this.screenWidth = 10;
+        this.screenHeight = 10;
         createWorld();
         this.messages = new ArrayList<String>();
         this.oldMessages = new ArrayList<String>();
@@ -49,15 +52,16 @@ public class PlayScreen implements Screen {
     }
 
     private void createCreatures(CreatureFactory creatureFactory) {
-        this.player = creatureFactory.newPlayer(this.messages);
-
-        for (int i = 0; i < 8; i++) {
+        this.player1 = creatureFactory.newPlayer1(this.messages);
+        this.player2 = creatureFactory.newPlayer2(this.messages);
+        this.Athena = creatureFactory.Athena();
+        /*for (int i = 0; i < 8; i++) {
             creatureFactory.newFungus();
-        }
+        }*/
     }
 
     private void createWorld() {
-        world = new WorldBuilder(90, 31).makeCaves().build();
+        world = new WorldBuilder(10, 10).makeMaze().build();
     }
 
     private void displayTiles(AsciiPanel terminal, int left, int top) {
@@ -67,22 +71,24 @@ public class PlayScreen implements Screen {
                 int wx = x + left;
                 int wy = y + top;
 
-                if (player.canSee(wx, wy)) {
+                terminal.write(world.glyph(wx, wy), x, y, world.color(wx, wy));
+
+                /*if (player.canSee(wx, wy)) {
                     terminal.write(world.glyph(wx, wy), x, y, world.color(wx, wy));
                 } else {
                     terminal.write(world.glyph(wx, wy), x, y, Color.DARK_GRAY);
-                }
+                }*/
             }
         }
         // Show creatures
-        for (Creature creature : world.getCreatures()) {
+        /*for (Creature creature : world.getCreatures()) {
             if (creature.x() >= left && creature.x() < left + screenWidth && creature.y() >= top
                     && creature.y() < top + screenHeight) {
                 if (player.canSee(creature.x(), creature.y())) {
                     terminal.write(creature.glyph(), creature.x() - left, creature.y() - top, creature.color());
                 }
             }
-        }
+        }*/
         // Creatures can choose their next action now
         world.update();
     }
@@ -101,10 +107,9 @@ public class PlayScreen implements Screen {
         // Terrain and creatures
         displayTiles(terminal, getScrollX(), getScrollY());
         // Player
-        terminal.write(player.glyph(), player.x() - getScrollX(), player.y() - getScrollY(), player.color());
-        // Stats
-        String stats = String.format("%3d/%3d hp", player.hp(), player.maxHP());
-        terminal.write(stats, 1, 23);
+        terminal.write(player1.glyph(), player1.x() - getScrollX(), player1.y() - getScrollY(), player1.color());
+        terminal.write(player2.glyph(), player2.x() - getScrollX(), player2.y() - getScrollY(), player2.color());
+        terminal.write(Athena.glyph(), Athena.x() - getScrollX(), Athena.y() - getScrollY(), Athena.color());
         // Messages
         displayMessages(terminal, this.messages);
     }
@@ -113,27 +118,53 @@ public class PlayScreen implements Screen {
     public Screen respondToUserInput(KeyEvent key) {
         switch (key.getKeyCode()) {
             case KeyEvent.VK_LEFT:
-                player.moveBy(-1, 0);
+                player1.moveBy(-1, 0);
                 break;
             case KeyEvent.VK_RIGHT:
-                player.moveBy(1, 0);
+                player1.moveBy(1, 0);
                 break;
             case KeyEvent.VK_UP:
-                player.moveBy(0, -1);
+                player1.moveBy(0, -1);
                 break;
             case KeyEvent.VK_DOWN:
-                player.moveBy(0, 1);
+                player1.moveBy(0, 1);
+                break;
+            case KeyEvent.VK_A:
+                player2.moveBy(-1, 0);
+                break;
+            case KeyEvent.VK_D:
+                player2.moveBy(1, 0);
+                break;
+            case KeyEvent.VK_W:
+                player2.moveBy(0, -1);
+                break;
+            case KeyEvent.VK_S:
+                player2.moveBy(0, 1);
                 break;
         }
+
+        if (judgeEnd()==1)
+            return new WinScreen("player1");
+        else if (judgeEnd()==2)
+            return new WinScreen("player2");
+
         return this;
     }
 
+    public int judgeEnd(){
+        if (player1.x()==world.width()-1 && player1.y()==world.height()-1)
+            return 1;
+        else if (player2.x()==world.width()-1 && player2.y()==world.height()-1)
+            return 2;
+        return 0;
+    }
+
     public int getScrollX() {
-        return Math.max(0, Math.min(player.x() - screenWidth / 2, world.width() - screenWidth));
+        return Math.max(0, Math.min(player1.x() - screenWidth / 2, world.width() - screenWidth));
     }
 
     public int getScrollY() {
-        return Math.max(0, Math.min(player.y() - screenHeight / 2, world.height() - screenHeight));
+        return Math.max(0, Math.min(player1.y() - screenHeight / 2, world.height() - screenHeight));
     }
 
 }
